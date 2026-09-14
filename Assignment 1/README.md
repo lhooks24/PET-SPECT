@@ -1,7 +1,8 @@
 # Imaging Methods: 1D Ultrasound Simulations
 
-This project contains three progressively more complete educational models of
-one-dimensional acoustic propagation. The finalized layered model is
+This project contains three progressively more complete baseline models of
+one-dimensional acoustic propagation and a nonlinear pulse-inversion
+extension. The finalized layered model is
 `scripts/1DWaveSimulationLayered.py`. It simulates a 2 MHz pulse emitted by an
 ideal piezoelectric face into a water–dermis–water–PMMA stack, including signed
 interface reflections, transmissions, finite-layer reverberations, a virtual
@@ -19,6 +20,7 @@ Assignment 1/
 |   |-- 1DWaveSimulation.py
 |   |-- 1DWaveSimulationDensity.py
 |   |-- 1DWaveSimulationLayered.py
+|   |-- NonlinearPulseInversion.py
 |   |-- pyproject.toml
 |   `-- uv.lock
 `-- outputs/
@@ -29,10 +31,11 @@ Assignment 1/
         `-- layered_ultrasound_final.png
 ```
 
-The scripts form a learning sequence: `1DWaveSimulation.py` demonstrates one
+The three baseline scripts form a learning sequence: `1DWaveSimulation.py` demonstrates one
 sound-speed boundary; `1DWaveSimulationDensity.py` adds density, impedance, and
 virtual measurements; `1DWaveSimulationLayered.py` is the finalized
-intermediate model documented below.
+intermediate model documented below. `NonlinearPulseInversion.py` is a separate
+follow-on investigation and does not alter that baseline.
 
 ## Installation
 
@@ -244,3 +247,56 @@ receive-chain calibration, and every physical layer in the apparatus.
 `1DWaveSimulationLayered.py`, this README, and the canonical layered outputs
 constitute the frozen intermediate version. Future physics changes should be
 made in a new script or version so this baseline remains reproducible.
+
+## Extension: nonlinear pulse-inversion imaging
+
+`scripts/NonlinearPulseInversion.py` replaces the exploratory template-based
+echo-separation program. It models a weak even-order nonlinear target whose echo
+is superimposed on a much stronger linear reflector. Two acquisitions use
+opposite-polarity transmit pulses. Linear echoes reverse sign, while the
+even-order target response does not, so their half-sum suppresses the linear
+reflector without requiring a stored reflector waveform.
+
+In the idealized model,
+
+```text
+y_plus  = +L + N + noise_plus
+y_minus = -L + N + noise_minus
+(y_plus + y_minus)/2 = N + averaged noise
+```
+
+`L` is the strong linear reflection and `N` is the weak even-order nonlinear
+response near twice the 2 MHz transmit frequency. The validation plot includes
+the simulated true `N` only to score the recovery; the half-sum algorithm does
+not use it. The default target is 0.5 mm behind the reflector, close enough for
+their finite-duration echoes to overlap.
+
+Run the interactive dashboard from the scripts directory:
+
+```powershell
+uv run python .\NonlinearPulseInversion.py
+```
+
+Save a reproducible figure and recovery table without opening a window:
+
+```powershell
+uv run python .\NonlinearPulseInversion.py `
+  --save-figure ..\outputs\figures\nonlinear_pulse_inversion.png `
+  --save-animation ..\outputs\figures\nonlinear_pulse_inversion.gif `
+  --save-csv ..\outputs\data\nonlinear_pulse_inversion.csv `
+  --no-show
+```
+
+Use `--nonlinear-fraction` and `--noise-fraction` to change target difficulty.
+`--inversion-gain-error` and `--inversion-time-error-ns` deliberately make the
+second transmission imperfect, demonstrating how linear clutter leaks into the
+recovered channel. The animation moves the nonlinear target through the linear
+reflector. This method cannot separate two arbitrary linear echoes: it works
+because the second acquisition supplies a different nonlinear response.
+
+This remains a 1D signal-level study. The strong reflector can represent
+bone-like clutter, but the model does not include elastic propagation, shear
+conversion, irregular bone geometry, or a prediction of transmission through
+actual bone. The even-order target is representative of a nonlinear scatterer
+such as a contrast-agent response; ordinary linear anatomy would cancel with
+the reflector instead of surviving pulse inversion.

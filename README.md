@@ -10,9 +10,9 @@ measurement.
 
 ### Assignment 1 — 1D ultrasound simulations
 
-`Assignment 1` contains three Python simulations that build progressively from
-a basic wave-equation demonstration to a density-aware, layered pulse-echo
-model:
+`Assignment 1` contains three baseline Python simulations that build
+progressively from a basic wave-equation demonstration to a density-aware,
+layered pulse-echo model, plus a nonlinear imaging extension:
 
 - **`1DWaveSimulation.py`** — introductory 1D FDTD wave propagation across a
   single change in sound speed, with static snapshots and animation.
@@ -25,6 +25,10 @@ model:
   2 MHz piezo face, multiple reflections, labeled A–F echoes, an ideal receive
   voltage, static figures, CSV export, and an interactive GUI with precomputed
   transducer standoff distances.
+- **`NonlinearPulseInversion.py`** — a two-acquisition pulse-inversion study. It
+  demonstrates how a weak even-order nonlinear target can be recovered while
+  its echo overlaps a much stronger linear reflector, without subtracting a
+  known reflector template.
 
 The assignment also includes:
 
@@ -50,6 +54,7 @@ PET-SPECT/
     |   |-- 1DWaveSimulation.py
     |   |-- 1DWaveSimulationDensity.py
     |   |-- 1DWaveSimulationLayered.py
+    |   |-- NonlinearPulseInversion.py
     |   |-- pyproject.toml
     |   `-- uv.lock
     `-- outputs/
@@ -77,10 +82,17 @@ Launch the interactive layered simulation with:
 uv run python .\1DWaveSimulationLayered.py --animate
 ```
 
+Run the nonlinear pulse-inversion extension with:
+
+```powershell
+uv run python .\NonlinearPulseInversion.py
+```
+
 ## Scope and status
 
 The current ultrasound programs are educational, idealized one-dimensional
-models—not validated clinical or instrument-design software. Future PET, SPECT,
-and other imaging work can be added as separate top-level assignments or
-project directories while retaining this structure and its reproducible
-environments.
+models—not validated clinical or instrument-design software. The
+pulse-inversion extension represents a generic strong linear reflector rather
+than full elastic propagation through bone. Future PET, SPECT, and other
+imaging work can be added as separate top-level assignments or project
+directories while retaining this structure and its reproducible environments.
